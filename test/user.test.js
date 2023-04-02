@@ -10,3 +10,13 @@ test("Should list all users", () => {
       expect(response.body[0]).toHaveProperty("name", "John");
     });
 });
+
+test("Should create a new user", () => {
+  return request(app)
+    .post("/users")
+    .send({ name: "Leonardo", age: 18 })
+    .then((response) => {
+      expect(response.statusCode).toBe(201);
+      expect(response.body).toHaveProperty("name", "Leonardo");
+    });
+});
