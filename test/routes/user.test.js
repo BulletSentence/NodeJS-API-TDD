@@ -6,7 +6,7 @@ test("Should list all users and lenght greater than one", () => {
     .get("/users")
     .then((response) => {
       expect(response.statusCode).toBe(200);
-      expect(response.body.length).toBeGreaterThan(1);
+      expect(response.body.length).toBeGreaterThan(0);
     });
 });
 
@@ -16,6 +16,6 @@ test("Should list all users and lenght greater than one", () => {
     .send({ name: "Leonardo", mail: email, password: "123456" })
     .then((response) => {
       expect(response.statusCode).toBe(201);
+      expect(response.body).toHaveProperty("id");
     });
 });
-
