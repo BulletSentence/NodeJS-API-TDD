@@ -1,12 +1,15 @@
-module.exports = () => {
+module.exports = (app) => {
   const findAll = (req, res) => {
-    const users = [{ name: "John", age: 20 }];
-    res.send(users);
+    app.db("users").select()
+    .then((users) => {
+        res.status(200).json(users);
+      })
   };
 
-  const create = (req, res) => {
+  const create = async (req, res) => {
     const user = req.body;
-    res.status(201).send(user);
+    const result = await app.db("users").insert(user, "*")
+    res.status(201).send(result[0]);
   };
 
   return { findAll, create };

@@ -1,0 +1,5 @@
+// Cria arquivo de migrated
+knex migrate:make create_user --env test
+
+// gera as mirations
+knex migrate:latest --env test
