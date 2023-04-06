@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint src/** test/** --fix",
-    "secure-mode": "jest --watch",
+    "secure-mode": "jest --watch ",
     "server": "node src/server.js"
   },
   "keywords": [],

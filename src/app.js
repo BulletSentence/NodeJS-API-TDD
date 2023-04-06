@@ -17,11 +17,11 @@ app.get("/", (req, res) => {
   res.send("Hello World!").sendStatus(200);
 });
 
-app.db.on("query", (query) => {
-  console.log(query.sql);
-  console.log(query.bindings);
-}).on("error", (err) =>
-  console.log(err)
-);
+app.use((err, req, res, next) => {
+  const { name, message, stack } = err;
+  if (name === "ValidationError") res.status(400).json({ error: message });
+  else res.status(500).json({ name, message, stack });
+  next(err);
+});
 
 module.exports = app;
