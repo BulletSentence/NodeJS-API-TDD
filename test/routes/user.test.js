@@ -1,6 +1,6 @@
 const request = require("supertest");
 const app = require("../../src/app");
-const { knex } = require("../../knexfile");
+const service = require("../../src/services/user");
 
 const newemail = Date.now() + Math.random(3) + "@gmail.com";
 
@@ -20,6 +20,7 @@ test("Should create a new user", () => {
     .then((response) => {
       expect(response.statusCode).toBe(201);
       expect(response.body).toHaveProperty("id");
+      expect(response.body).not.toHaveProperty("password");
     });
 });
 
@@ -29,8 +30,6 @@ test("Should not create a user with no name", async () => {
     .post("/users")
     .send({ mail: email, password: "123456" });
   expect(response.body.error).toBe("Name is a required attribute");
-  // return a log with the error
-  console.log(response.body.error);
 });
 
 test("Should not create a user with no email", async () => {
@@ -59,3 +58,13 @@ test("Should not create a user with a existent email", () => {
   });
 });
 
+test("Should save a crypt password", async () => {
+  const email = Date.now() + "@gmail.com";
+  const res = await request(app).post("/users")
+  .send({ name: "Leonardo", mail: email, password: "123456" })
+  expect(res.statusCode).toBe(201);
+  const { id } = res.body;
+  const user = await app.db("users").where({ id }).first();
+  expect(user.password).not.toBeUndefined();
+  expect(user.password).not.toBe("123456");
+});

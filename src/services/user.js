@@ -1,6 +1,21 @@
+const bcypt = require("bcrypt");
+
 module.exports = (app) => {
   const findAll = (filter = {}) => {
-    return app.db("users").where(filter).select();
+    return app.db("users").where(filter).select(["id", "name", "mail"]);
+  };
+
+  const findOne = (id) => {
+    return app.db("users").where({ id }).first();
+  };
+
+  const findbyEmail = (mail) => {
+    return app.db("users").where({ mail }).first();
+  };
+
+  const getPasswordHash = (password) => {
+    const salt = bcypt.genSaltSync(10);
+    return bcypt.hashSync(password, salt);
   };
 
   const save = async (user) => {
@@ -12,8 +27,11 @@ module.exports = (app) => {
 
     if (userdb && userdb.length > 0)
       return { error: "Email already registered" };
-    return await app.db("users").insert(user, "*");
+
+    var newUser = { ...user };
+    newUser.password = getPasswordHash(user.password);
+    return await app.db("users").insert(newUser, ["id", "name", "mail"]);
   };
 
-  return { findAll, save };
+  return { findAll, save, findOne, findbyEmail };
 };
