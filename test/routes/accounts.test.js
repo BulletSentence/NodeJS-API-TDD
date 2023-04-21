@@ -4,6 +4,7 @@ const app = require("../../src/app");
 const MAIN_ROUTE = "/accounts";
 let user;
 var date_now = Date.now();
+
 beforeAll(async () => {
   const res = await app.services.user.save({
     name: "Leonardo",
@@ -17,19 +18,26 @@ beforeAll(async () => {
 test("Should insert an account", async () => {
   const res = await request(app)
     .post(MAIN_ROUTE)
+    .set("Authorization", `Bearer ${user.token}`)
     .send({ name: "Acc #1", user_id: user.id });
   expect(res.status).toBe(201);
   expect(res.body.name).toBe("Acc #1");
 });
 
 test("Should not insert an account without name", async () => {
-  const res = await request(app).post(MAIN_ROUTE).send({ user_id: user.id });
+  const res = await request(app)
+    .post(MAIN_ROUTE)
+    .send({ user_id: user.id })
+    .set("Authorization", `Bearer ${user.token}`);
   expect(res.status).toBe(400);
   expect(res.body.error).toBe("Name is a required attribute");
 });
 
 test("Should List all accounts", async () => {
-  await app.db("accounts").insert({ name: "Acc List", user_id: user.id });
+  await app
+    .db("accounts")
+    .insert({ name: "Acc List", user_id: user.id })
+    .set("Authorization", `Bearer ${user.token}`);
   const res = await request(app).get(MAIN_ROUTE);
   expect(res.status).toBe(200);
   expect(res.body.length).toBeGreaterThan(0);
@@ -39,7 +47,9 @@ test("Should return a account by id", async () => {
   const acc = await app
     .db("accounts")
     .insert({ name: "Acc by ID", user_id: user.id }, ["id"]);
-  const res = await request(app).get(`${MAIN_ROUTE}/${acc[0].id}`);
+  const res = await request(app)
+    .get(`${MAIN_ROUTE}/${acc[0].id}`)
+    .set("Authorization", `Bearer ${user.token}`);
   expect(res.status).toBe(200);
   expect(res.body.name).toBe("Acc by ID");
   expect(res.body.user_id).toBe(user.id);
@@ -48,7 +58,8 @@ test("Should return a account by id", async () => {
 test("Should update an account", async () => {
   const acc = await app
     .db("accounts")
-    .insert({ name: "Acc to update", user_id: user.id }, ["id"]);
+    .insert({ name: "Acc to update", user_id: user.id }, ["id"])
+    .set("Authorization", `Bearer ${user.token}`);
   const res = await request(app)
     .put(`${MAIN_ROUTE}/${acc[0].id}`)
     .send({ name: "Acc Updated" });
@@ -59,7 +70,9 @@ test("Should remove an account", async () => {
   const acc = await app
     .db("accounts")
     .insert({ name: "Acc to delete", user_id: user.id }, ["id"]);
-  const res = await request(app).delete(`${MAIN_ROUTE}/${acc[0].id}`);
+  const res = await request(app)
+    .delete(`${MAIN_ROUTE}/${acc[0].id}`)
+    .set("Authorization", `Bearer ${user.token}`);
   expect(res.status).toBe(204);
 });
 
